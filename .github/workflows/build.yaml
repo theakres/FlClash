@@ -1,4 +1,4 @@
-name: Build Android Release
+name: Manual Build Android Release
 
 on:
   workflow_dispatch:
@@ -33,16 +33,17 @@ jobs:
       - name: Get Dependencies
         run: |
           flutter pub get
-          # Принудительная активация дистрибьютора, если скрипт её пропустит
           dart pub global activate flutter_distributor
 
       - name: Build Project
         run: dart setup.dart android --arch arm64 --env stable --out app
         env:
-          ANDROID_NDK: ${{ env.ANDROID_HOME }}/ndk-bundle
+          # Исправленный путь к NDK в GitHub Actions
+          ANDROID_NDK: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FlClash-Release-arm64-v8a
           path: ./dist/**/*.apk
+        
