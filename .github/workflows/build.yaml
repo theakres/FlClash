@@ -1,4 +1,4 @@
-name: Manual Build Android Release
+name: Build Android Release
 
 on:
   workflow_dispatch:
@@ -36,14 +36,18 @@ jobs:
           dart pub global activate flutter_distributor
 
       - name: Build Project
-        run: dart setup.dart android --arch arm64 --env stable --out app
+        run: |
+          if [ -d "${ANDROID_HOME}/ndk" ]; then
+            export ANDROID_NDK=$(ls -d ${ANDROID_HOME}/ndk/* | tail -1)
+          else
+            export ANDROID_NDK=${ANDROID_HOME}/ndk-bundle
+          fi
+          dart setup.dart android --arch arm64 --env stable --out app
         env:
-          # Исправленный путь к NDK в GitHub Actions
-          ANDROID_NDK: ${{ env.ANDROID_HOME }}/ndk/27.0.12077973
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FlClash-Release-arm64-v8a
           path: ./dist/**/*.apk
-        
